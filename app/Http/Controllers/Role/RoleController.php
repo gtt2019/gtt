@@ -33,9 +33,7 @@ class RoleController extends Controller
             return json_encode(['error' => $message]);
         }
 
-        $results = DB::select("SELECT * FROM USRUSERS");       
-        print_r($results);
-
+        $results = DB::select("select * from USRUSER where mobile = $id", array(1));       
 
         if (empty($results)) {
             $message = "Unauthorised access";
