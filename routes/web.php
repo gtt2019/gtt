@@ -11,10 +11,10 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
-// Route::get('/hi', 'ProductController@getRoles');
+Route::get('/hi', 'ProductController@getRoles');
 
 // Route::get('/authUser/{id}', 'Role\RoleController@authUser');

@@ -19,8 +19,8 @@ class RoleController extends Controller
      * Validate USer mobile mnumber.
      */
     public function authUser(Request $request)
-    {        
-        $id = $request->input('mobileNumber');        
+    {   
+        $id = $request->input('mobileNumber');                
         $v = Validator::make($request->all(), [
             'mobileNumber' => 'required|max:10|min:10']
             // ['mobileNumberid' => 'invalid id provided']
@@ -34,6 +34,8 @@ class RoleController extends Controller
         }
 
         $results = DB::select("select * from USRUSER where mobile = $id", array(1));       
+
+
         if (empty($results)) {
             $message = "Unauthorised access";
             $code = 403;     

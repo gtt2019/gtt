@@ -21,9 +21,6 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 // Route::get('/authUser', 'Role\RoleController@authUser');
 Route::post('/authUser', 'Role\RoleController@authUser');
 
-
-
-
 // Route::get('/getRoles', 
 // [
 //     'middleware' => 'api',
