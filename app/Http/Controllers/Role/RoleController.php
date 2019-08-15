@@ -33,7 +33,8 @@ class RoleController extends Controller
             return json_encode(['error' => $message]);
         }
 
-        $results = DB::select("select * from USRUSER where mobile = $id", array(1));       
+        $results = DB::select("SELECT * FROM USRUSERS");       
+        print_r($results);
 
 
         if (empty($results)) {
