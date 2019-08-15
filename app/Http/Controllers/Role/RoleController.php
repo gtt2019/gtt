@@ -33,22 +33,29 @@ class RoleController extends Controller
             return json_encode(['error' => $message]);
         }
 
-        $results = DB::select("select * from USRUSER where mobile = $id", array(1));       
+        $results = DB::select("select firstName, lastName, usrid, mobile
+                             from USRUSER where mobile = $id and typeid = 4 and active = 'Y'"
+                             , array(1));   
+                             
 
+                             
         if (empty($results)) {
             $message = "Unauthorised access";
             $code = 403;     
             $accesToken = "";
+            $data = null;
         }else {
+            $data = $results[0];
             $message = "Login successfully";
-            $code = 403;     
+            $code = 200;     
             $accesToken = "abcdefghijkl";
         }
 
         return response()->json([
             'message' => $message,
             'statusCode' => $code,
-            'accessToken' => $accesToken
+            'accessToken' => $accesToken,
+            'data' => $data
         ]);            
     }
 }
