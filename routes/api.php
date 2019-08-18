@@ -19,7 +19,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 // Route::post('/authUser', 'ProductController@authUser');
 // Route::get('/authUser', 'Role\RoleController@authUser');
-Route::post('/authUser', 'Role\RoleController@authUser');
+Route::post('/authUser', 'Login\LoginController@authUser');
+
+Route::post('/getAllNewTask', 'Task\TaskController@getAllNewTask');
+
 
 // Route::get('/getRoles', 
 // [

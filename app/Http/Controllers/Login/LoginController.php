@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Controllers\Role;
+namespace App\Http\Controllers\Login;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -11,9 +11,9 @@ use Illuminate\Support\Facades\DB;
 
 
 /**
- * Get Role list
+ * Login Controller to verify login action and token
  */
-class RoleController extends Controller
+class LoginController extends Controller
 {
     /**
      * Validate USer mobile mnumber.
@@ -32,13 +32,13 @@ class RoleController extends Controller
             $message = $err->first('mobileNumber');
             return json_encode(['error' => $message]);
         }
-
-        $results = DB::select("select firstName, lastName, usrid, mobile
-                             from USRUSER where mobile = $id and typeid = 4 and active = 'Y'"
-                             , array(1));   
-                             
-
-                             
+                               
+        $results =
+         DB::table('USRUSER')
+            ->select('firstName', 'lastName', 'usrid', 'mobile')
+            ->where(['mobile'=> $id])
+            ->get();    
+            
         if (empty($results)) {
             $message = "Unauthorised access";
             $code = 403;     
@@ -48,7 +48,7 @@ class RoleController extends Controller
             $data = $results[0];
             $message = "Login successfully";
             $code = 200;     
-            $accesToken = "abcdefghijkl";
+            $accesToken = "aaaaa123456@#";
         }
 
         return response()->json([
