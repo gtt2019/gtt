@@ -48,8 +48,15 @@ class TaskController extends Controller
 
         $tasks = DB::table('ORDERMASTER')                                    
             ->select('orderid', 'orderno', 'statusid',
-             'customerid', 'orderarea', 'orderdesc', 
-            'totalamtwithtax', 'totaldiscount')
+             'CUSTMASTER.customerid', 'orderarea', 'orderdesc', 
+            'totalamtwithtax', 'totaldiscount', 'CUSTMASTER.firstName',
+            'STRSTORE.name as storeName', 'STRSTORE.owner as ownerName',
+            'STRSTORE.latitude', 'STRSTORE.longitude', 'STRAREA.areauserdesc'
+            )
+            ->join('CUSTMASTER', 'ORDERMASTER.customerid', '=', 'CUSTMASTER.customerid' )
+            ->join('STRSTORE', 'ORDERMASTER.storeid', '=', 'STRSTORE.storeid')
+            ->join('STRSTOREAREA', 'STRSTORE.storeid', '=', 'STRSTOREAREA.storeid')
+            ->join('STRAREA', 'STRAREA.areaid', '=', 'STRSTOREAREA.areaid')
             ->where(['statusid'=> $statusId])
             ->get();
 
