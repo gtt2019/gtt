@@ -109,11 +109,12 @@ class TaskController extends Controller
             return $tasks;
     }
     
-    public function updateTaskStatus(Request $request)
+    public function updateOrderStatus(Request $request)
     {
         $token = $request->input('token');
         $userId = $request->input('userId');     
         $orderId = $request->input('orderId');
+        $orderStatusId = $request->input('statusId');
         $accesToken = "aaaaa123456@#";
         $statusId = 1;
         
@@ -143,11 +144,28 @@ class TaskController extends Controller
             ]);                
         }
         
-        $tasks = DB::table('ORDERMASTER')
-                    ->where(['orderid' => $orderId, 'active' => 'Y'])
-                    ->update(['statusid' => self::STATUS_ID_IN_PROGRESS]);
-                    dd($tasks);
-
-        dd("dffdf");
+        $result = DB::table('ORDERMASTER')
+                    ->where(['orderid' => $orderId, 'active' => 'Y', 'assignedto' => $userId])
+                    ->update(['statusid' => $orderStatusId]);
+     
+        if (!$result) {
+                  $message = "No order found";
+                  $code = 204;     
+                $accesToken = "aaaaa123456@#";
+                     $data = null;
+            }else {
+                $data = null;
+                        $message = "Order status updated successfully";
+                        $code = 200;     
+                        $accesToken = "aaaaa123456@#";
+                    }
+            
+                    return response()->json([
+                        'message' => $message,
+                        'statusCode' => $code,
+                        'accessToken' => $accesToken,
+                        'data' => $data
+                    ]);            
+     
     }
 }
