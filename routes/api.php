@@ -24,7 +24,11 @@ Route::post('/authUser', 'Login\LoginController@authUser');
 Route::post('/getAllNewTask', 'Task\TaskController@getAllNewTask');
 Route::post('/updateOrderStatus', 'Task\TaskController@updateOrderStatus');
 
+//DAshborad API
+Route::post('/getCompletedOrderCount', 'Task\TaskController@getCompletedOrderCount');
+Route::post('/getTotalEarnings', 'Task\TaskController@getTotalEarnings');
 
+Route::post('/confirmOrder', 'Task\TaskController@confirmOrder');
 
 // Route::get('/getRoles', 
 // [

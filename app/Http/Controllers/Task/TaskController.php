@@ -165,7 +165,182 @@ class TaskController extends Controller
                         'statusCode' => $code,
                         'accessToken' => $accesToken,
                         'data' => $data
-                    ]);            
-     
+                    ]);  
+
     }
+
+    public function getCompletedOrderCount(Request $request) 
+    {
+        $token = $request->input('token');
+        $userId = $request->input('userId');     
+        $accesToken = "aaaaa123456@#";        
+        
+        $v = Validator::make($request->all(), [
+            'userId' => 'required|int',
+            'token' => 'required'        
+            ]);
+    
+        if ($v->fails())
+        {            
+            $err = $v->errors();       
+            $message = $err->all();
+            return json_encode(['error' => $message] );
+        }
+
+        $tokenService = new TokenService();
+        $tokenStatus = $tokenService->validateAccessToken($token);
+
+        if ($tokenStatus['status'] !== true) {
+            return response()->json([
+                'message' => $tokenStatus['messsage'],
+                'statusCode' => 400,
+                'accessToken' => $accesToken,
+                'data' => $data
+            ]);                
+        }
+        
+        $count = DB::table('ORDERMASTER')
+                    ->where(['assignedto' => $userId , 'statusid' => 4])
+                    ->count('orderid');                                      
+
+        if (!$count) {
+            $message = "Nuber of order completed $count";
+            $code = 204;
+            $accesToken = "aaaaa123456@#";
+            $data = [ 
+                'totalOrderCompleted' => $count
+               ];
+        }else {
+            $data = [ 
+             'totalOrderCompleted' => $count
+            ];
+            $message = "Nuber of order completed $count";
+            $code = 200;     
+            $accesToken = "aaaaa123456@#";
+        }
+                  
+        return response()->json([
+            'message' => $message,
+            'statusCode' => $code,
+            'accessToken' => $accesToken,
+            'data' => $data
+        ]) ;
+    }
+
+    public function getTotalEarnings(Request $request) 
+    {
+        $token = $request->input('token');
+        $userId = $request->input('userId');     
+        $accesToken = "aaaaa123456@#";        
+        
+        $v = Validator::make($request->all(), [
+            'userId' => 'required|int',
+            'token' => 'required'        
+            ]);
+    
+        if ($v->fails())
+        {            
+            $err = $v->errors();       
+            $message = $err->all();
+            return json_encode(['error' => $message] );
+        }
+
+        $tokenService = new TokenService();
+        $tokenStatus = $tokenService->validateAccessToken($token);
+
+        if ($tokenStatus['status'] !== true) {
+            return response()->json([
+                'message' => $tokenStatus['messsage'],
+                'statusCode' => 400,
+                'accessToken' => $accesToken,
+                'data' => $data
+            ]);                
+        }
+
+        $totalEarings = DB::table('ORDERMASTER')
+                    ->where(['assignedto' => $userId, 'statusid' => 4])
+                    ->sum('totalamtwithtax');                            
+
+        if (!$totalEarings) {
+            $message = "";
+            $code = 204;
+            $accesToken = "aaaaa123456@#";
+            $data = ['totalEarings' => $totalEarings];
+        }else {
+            $data = ['totalEarings' => $totalEarings];
+            $message = "";
+            $code = 200;     
+            $accesToken = "aaaaa123456@#";
+        }
+                  
+        return response()->json([
+            'message' => $message,
+            'statusCode' => $code,
+            'accessToken' => $accesToken,
+            'data' => $data
+        ]) ;
+    }
+
+    public function confirmOrder(Request $request) 
+    {
+        $token = $request->input('token');
+        $userId = $request->input('userId');     
+        $orderId = $request->input('orderId');     
+        $accesToken = "aaaaa123456@#";        
+        
+        $v = Validator::make($request->all(), [
+            'userId' => 'required|int',
+            'token' => 'required',   
+            'orderId' => 'required|int'
+            ]);
+    
+        if ($v->fails())
+        {            
+            $err = $v->errors();       
+            $message = $err->all();
+            return json_encode(['error' => $message] );
+        }
+
+        $tokenService = new TokenService();
+        $tokenStatus = $tokenService->validateAccessToken($token);
+
+        if ($tokenStatus['status'] !== true) {
+            return response()->json([
+                'message' => $tokenStatus['messsage'],
+                'statusCode' => 400,
+                'accessToken' => $accesToken,
+                'data' => $data
+            ]);                
+        }
+
+        $confirmOrder = DB::table('ORDERMASTER')
+                    ->where(['orderid' => $orderId, 'active' => 'Y'])
+                    ->update([
+                        'statusid' => 5,
+                        'assignedto' => $userId
+                    ]);               
+
+                    dd($confirmOrder);
+        if (!$confirmOrder) {
+            $message = "";
+            $code = 204;
+            $accesToken = "aaaaa123456@#";
+            $data = ['totalEarings' => $totalEarings];
+        }else {
+            $data = ['totalEarings' => $totalEarings];
+            $message = "";
+            $code = 200;     
+            $accesToken = "aaaaa123456@#";
+        }
+                  
+        return response()->json([
+            'message' => $message,
+            'statusCode' => $code,
+            'accessToken' => $accesToken,
+            'data' => $data
+        ]) ;
+    }
+
 }
+
+
