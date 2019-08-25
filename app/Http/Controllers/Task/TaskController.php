@@ -319,16 +319,15 @@ class TaskController extends Controller
                         'statusid' => 5,
                         'assignedto' => $userId
                     ]);               
-
-                    dd($confirmOrder);
+                    
         if (!$confirmOrder) {
             $message = "";
             $code = 204;
             $accesToken = "aaaaa123456@#";
-            $data = ['totalEarings' => $totalEarings];
+            $data = null;
         }else {
-            $data = ['totalEarings' => $totalEarings];
-            $message = "";
+            $data = "";
+            $message = "Order Confirm and assing to me.";
             $code = 200;     
             $accesToken = "aaaaa123456@#";
         }
