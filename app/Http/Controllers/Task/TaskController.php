@@ -340,6 +340,131 @@ class TaskController extends Controller
         ]) ;
     }
 
+    public function rejectOrder(Request $request) 
+    {
+        $token = $request->input('token');
+        $userId = $request->input('userId');     
+        $orderId = $request->input('orderId');     
+        $accesToken = "aaaaa123456@#";        
+        
+        $v = Validator::make($request->all(), [
+            'userId' => 'required|int',
+            'token' => 'required',   
+            'orderId' => 'required|int'
+            ]);
+    
+        if ($v->fails())
+        {            
+            $err = $v->errors();       
+            $message = $err->all();
+            return json_encode(['error' => $message] );
+        }
+
+        $tokenService = new TokenService();
+        $tokenStatus = $tokenService->validateAccessToken($token);
+
+        if ($tokenStatus['status'] !== true) {
+            return response()->json([
+                'message' => $tokenStatus['messsage'],
+                'statusCode' => 400,
+                'accessToken' => $accesToken,
+                'data' => $data
+            ]);                
+        }
+
+        // $dateTime = new DateTime();
+        $orderStatus = DB::table('ORDERMASTER')
+                    ->where(['orderid' => $orderId, 'active' => 'Y'])
+                    ->update([
+                        'statusid' => 6,     
+                        'assignedto' => null,
+                        'lastupdated' => now()
+                    ]);               
+                    
+        if (!$orderStatus) {
+            $message = "";
+            $code = 204;
+            $accesToken = "aaaaa123456@#";
+            $data = null;
+        }else {
+            $data = "";
+            $message = "Order rejected.";
+            $code = 200;     
+            $accesToken = "aaaaa123456@#";
+        }
+                  
+        return response()->json([
+            'message' => $message,
+            'statusCode' => $code,
+            'accessToken' => $accesToken,
+            'data' => $data
+        ]) ;
+    }
+    
+public function getOrderDetails(Request $request) 
+{
+    $token = $request->input('token');
+    $userId = $request->input('userId');     
+    $orderId = $request->input('orderId');     
+    $accesToken = "aaaaa123456@#";        
+    
+    $v = Validator::make($request->all(), [
+        'userId' => 'required|int',
+        'token' => 'required',   
+        'orderId' => 'required|int'
+        ]);
+
+    if ($v->fails())
+    {            
+        $err = $v->errors();       
+        $message = $err->all();
+        return json_encode(['error' => $message] );
+    }
+
+    $tokenService = new TokenService();
+    $tokenStatus = $tokenService->validateAccessToken($token);
+
+    if ($tokenStatus['status'] !== true) {
+        return response()->json([
+            'message' => $tokenStatus['messsage'],
+            'statusCode' => 400,
+            'accessToken' => $accesToken,
+            'data' => $data
+        ]);                
+    }
+
+    // $dateTime = new DateTime();
+    $orderDetails = DB::table('ORDERMASTER')                                    
+    ->select('orderid', 'orderno', 'statusid','ORDERMASTER.storeid','ordersdate','expecteddelivery',
+     'CUSTMASTER.customerid', 'orderarea', 'orderdesc', 
+    'totalamtwithtax', 'CUSTMASTER.firstName',
+    'STRSTORE.name as storeName', 'STRSTORE.owner as ownerName'               
+    )
+    ->join('CUSTMASTER', 'ORDERMASTER.customerid', '=', 'CUSTMASTER.customerid' )
+    ->join('STRSTORE', 'ORDERMASTER.storeid', '=', 'STRSTORE.storeid')                
+    ->where(['orderid' => $orderId])
+    ->get();              
+                    
+    if (!$orderDetails) {
+        $message = "Order not found";
+        $code = 204;
+        $accesToken = "aaaaa123456@#";
+        $data = null;
+    }else {
+        $data = $orderDetails;
+        $message = "";
+        $code = 200;     
+        $accesToken = "aaaaa123456@#";
+    }
+              
+    return response()->json([
+        'message' => $message,
+        'statusCode' => $code,
+        'accessToken' => $accesToken,
+        'data' => $data
+    ]) ;
+}
+
 }
 
 

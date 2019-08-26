@@ -29,7 +29,9 @@ Route::post('/getCompletedOrderCount', 'Task\TaskController@getCompletedOrderCou
 Route::post('/getTotalEarnings', 'Task\TaskController@getTotalEarnings');
 
 Route::post('/confirmOrder', 'Task\TaskController@confirmOrder');
+Route::post('/rejectOrder', 'Task\TaskController@rejectOrder');
 
+Route::post('/getOrderDetails', 'Task\TaskController@getOrderDetails');
 // Route::get('/getRoles', 
 // [
 //     'middleware' => 'api',
