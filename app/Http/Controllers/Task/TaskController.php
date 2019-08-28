@@ -439,7 +439,7 @@ public function getOrderDetails(Request $request)
     }
 
     // $dateTime = new DateTime();
-    $res = DB::table('ORDERMASTER')                                    
+    $orderDetails = DB::table('ORDERMASTER')                                    
     ->select('orderid', 'orderno', 'statusid','ORDERMASTER.storeid','ordersdate','expecteddelivery',
      'CUSTMASTER.customerid', 'orderarea', 'orderdesc', 
     'totalamtwithtax', 'CUSTMASTER.firstName',
@@ -449,9 +449,9 @@ public function getOrderDetails(Request $request)
     ->join('STRSTORE', 'ORDERMASTER.storeid', '=', 'STRSTORE.storeid')                
     ->where(['assignedto' => $userId, 'orderid' => $orderId])
     ->get(); 
-    $orderDetails = $res[0];
-    $storeAddress = $this->getAddress('Store', $orderDetails->storeid);
-    $customerAddress = $this->getAddress('Customer', $orderDetails->customerid);
+    
+    $storeAddress = $this->getAddress('Store', $orderDetails[0]->storeid);
+    $customerAddress = $this->getAddress('Customer', $orderDetails[0]->customerid);
    
     //dd($res);
     
