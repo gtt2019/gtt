@@ -100,7 +100,7 @@ class TaskController extends Controller
         $tasks = DB::table('CMNADDRESS')                                    
             ->select(
                 'address1', 'address2', 'locality','landmark','cityname', 'statename',
-                'countryname', 'CMNZIPCODE.zipcode', 'zipcodearea'
+                'countryname', 'CMNZIPCODE.zipcode', 'zipcodearea', 'mobile'
             )
             ->join('CMNCITY', 'CMNCITY.cityid', '=', 'CMNADDRESS.city')
             ->join('CMNSTATE', 'CMNCITY.stateid', '=', 'CMNADDRESS.state')
@@ -440,16 +440,23 @@ public function getOrderDetails(Request $request)
 
     // $dateTime = new DateTime();
     $orderDetails = DB::table('ORDERMASTER')                                    
-    ->select('orderid', 'orderno', 'statusid','ORDERMASTER.storeid','ordersdate','expecteddelivery',
+    ->select('ORDERMASTER.orderid', 'orderno', 'statusid','ORDERMASTER.storeid','ordersdate','expecteddelivery',
      'CUSTMASTER.customerid', 'orderarea', 'orderdesc', 
-    'totalamtwithtax', 'CUSTMASTER.firstName',
-    'STRSTORE.name as storeName', 'STRSTORE.owner as ownerName'               
-    )
+    'totalamtwithtax', 'CUSTMASTER.firstName', 
+    'STRSTORE.name as storeName', 'STRSTORE.owner as ownerName',
+    'detailid', 'qty', 'unitprice', 'longitude', 'latitude' )
     ->join('CUSTMASTER', 'ORDERMASTER.customerid', '=', 'CUSTMASTER.customerid' )
     ->join('STRSTORE', 'ORDERMASTER.storeid', '=', 'STRSTORE.storeid')                
-    ->where(['assignedto' => $userId, 'orderid' => $orderId])
+    ->join('ORDERDETAIL', 'ORDERMASTER.orderid', '=', 'ORDERDETAIL.orderid')
+    ->where(['assignedto' => $userId, 'ORDERMASTER.orderid' => $orderId])
     ->get(); 
-    
+   
+    $itemDetails = DB::table('ORDERDETAIL')->select(
+        'Prdmaster.prddesc', 'qty', 'unitprice', 'netamount'
+        )  
+    ->join('Prdmaster', 'Prdmaster.prdid', '=', 'ORDERDETAIL.ordlineno' )
+    ->where(['ORDERDETAIL.orderid' => $orderId])->get();
+
     $storeAddress = $this->getAddress('Store', $orderDetails[0]->storeid);
     $customerAddress = $this->getAddress('Customer', $orderDetails[0]->customerid);
    
@@ -462,10 +469,12 @@ public function getOrderDetails(Request $request)
         $orderDetail = null;
         $storeAddres = null;
         $customerAddres = null;
+        $itemDetail = null;
     }else {
         $orderDetail = $orderDetails;
         $storeAddres = $storeAddress;
         $customerAddres = $customerAddress;
+        $itemDetail = $itemDetails;
         $message = "";
         $code = 200;     
         $accesToken = "aaaaa123456@#";
@@ -477,7 +486,8 @@ public function getOrderDetails(Request $request)
         'accessToken' => $accesToken,
         'data' => $orderDetail,
         'pickupAddress'=> $storeAddres,
-        'deliveryAddress' => $customerAddres
+        'deliveryAddress' => $customerAddres,
+        'itemDetails' =>$itemDetail
     ]) ;
 }
 
