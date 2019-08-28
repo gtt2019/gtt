@@ -476,8 +476,8 @@ public function getOrderDetails(Request $request)
         'statusCode' => $code,
         'accessToken' => $accesToken,
         'orderDetails' => $orderDetail,
-        'storeAddress'=> $storeAddres,
-        'customerAddress' => $customerAddres
+        'pickupAddress'=> $storeAddres,
+        'deliveryAddress' => $customerAddres
     ]) ;
 }
 
