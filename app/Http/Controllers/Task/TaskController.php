@@ -78,7 +78,7 @@ class TaskController extends Controller
                 $message = "No new tasks";
                 $code = 204;     
                 $accesToken = "aaaaa123456@#";
-                $data = nul;
+                $data = null;
             }else {
                 $data = $data;
                 $message = "";
