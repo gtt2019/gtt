@@ -78,7 +78,7 @@ class TaskController extends Controller
                 $message = "No new tasks";
                 $code = 204;     
                 $accesToken = "aaaaa123456@#";
-                $data = null;
+                $data = nul;
             }else {
                 $data = $data;
                 $message = "";
@@ -99,8 +99,13 @@ class TaskController extends Controller
     {        
         $tasks = DB::table('CMNADDRESS')                                    
             ->select(
-                'address1', 'address2', 'locality'
+                'address1', 'address2', 'locality','landmark','cityname', 'statename',
+                'countryname', 'CMNZIPCODE.zipcode', 'zipcodearea'
             )
+            ->join('CMNCITY', 'CMNCITY.cityid', '=', 'CMNADDRESS.city')
+            ->join('CMNSTATE', 'CMNCITY.stateid', '=', 'CMNADDRESS.state')
+            ->join('CMNCOUNTRY', 'CMNCOUNTRY.countryid', '=', 'CMNADDRESS.country')
+            ->join('CMNZIPCODE', 'CMNZIPCODE.zipcodeid', '=', 'CMNADDRESS.postalcode')
             ->where('addresstype', $addressType)            
             ->where('addresstypeid', $addressTypeId)
             ->where('primaryaddress', 1)
@@ -434,7 +439,7 @@ public function getOrderDetails(Request $request)
     }
 
     // $dateTime = new DateTime();
-    $orderDetails = DB::table('ORDERMASTER')                                    
+    $res = DB::table('ORDERMASTER')                                    
     ->select('orderid', 'orderno', 'statusid','ORDERMASTER.storeid','ordersdate','expecteddelivery',
      'CUSTMASTER.customerid', 'orderarea', 'orderdesc', 
     'totalamtwithtax', 'CUSTMASTER.firstName',
@@ -442,16 +447,25 @@ public function getOrderDetails(Request $request)
     )
     ->join('CUSTMASTER', 'ORDERMASTER.customerid', '=', 'CUSTMASTER.customerid' )
     ->join('STRSTORE', 'ORDERMASTER.storeid', '=', 'STRSTORE.storeid')                
-    ->where(['orderid' => $orderId])
-    ->get();              
-                    
+    ->where(['assignedto' => $userId, 'orderid' => $orderId])
+    ->get(); 
+    $orderDetails = $res[0];
+    $storeAddress = $this->getAddress('Store', $orderDetails->storeid);
+    $customerAddress = $this->getAddress('Customer', $orderDetails->customerid);
+   
+    //dd($res);
+    
     if (!$orderDetails) {
         $message = "Order not found";
         $code = 204;
         $accesToken = "aaaaa123456@#";
-        $data = null;
+        $orderDetail = null;
+        $storeAddres = null;
+        $customerAddres = null;
     }else {
-        $data = $orderDetails;
+        $orderDetail = $orderDetails;
+        $storeAddres = $storeAddress;
+        $customerAddres = $customerAddress;
         $message = "";
         $code = 200;     
         $accesToken = "aaaaa123456@#";
@@ -461,7 +475,9 @@ public function getOrderDetails(Request $request)
         'message' => $message,
         'statusCode' => $code,
         'accessToken' => $accesToken,
-        'data' => $data
+        'orderDetails' => $orderDetail,
+        'storeAddress'=> $storeAddres,
+        'customerAddress' => $customerAddres
     ]) ;
 }
 
