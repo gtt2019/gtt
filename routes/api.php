@@ -30,8 +30,12 @@ Route::post('/getTotalEarnings', 'Task\TaskController@getTotalEarnings');
 
 Route::post('/confirmOrder', 'Task\TaskController@confirmOrder');
 Route::post('/rejectOrder', 'Task\TaskController@rejectOrder');
-
 Route::post('/getOrderDetails', 'Task\TaskController@getOrderDetails');
+
+Route::post('/uploadImages', 'File\FileController@uploadImages');
+
+
+
 // Route::get('/getRoles', 
 // [
 //     'middleware' => 'api',

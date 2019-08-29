@@ -78,7 +78,7 @@ class TaskController extends Controller
                 $message = "No new tasks";
                 $code = 204;     
                 $accesToken = "aaaaa123456@#";
-                $data = nul;
+                $data = [];
             }else {
                 $data = $data;
                 $message = "";
@@ -157,9 +157,9 @@ class TaskController extends Controller
                   $message = "No order found";
                   $code = 204;     
                 $accesToken = "aaaaa123456@#";
-                     $data = null;
+                     $data = [];
             }else {
-                $data = null;
+                $data = [];
                         $message = "Order status updated successfully";
                         $code = 200;     
                         $accesToken = "aaaaa123456@#";
@@ -329,7 +329,7 @@ class TaskController extends Controller
             $message = "";
             $code = 204;
             $accesToken = "aaaaa123456@#";
-            $data = null;
+            $data = [];
         }else {
             $data = "";
             $message = "Order Confirm and assing to me.";
@@ -390,7 +390,7 @@ class TaskController extends Controller
             $message = "";
             $code = 204;
             $accesToken = "aaaaa123456@#";
-            $data = null;
+            $data = [];
         }else {
             $data = "";
             $message = "Order rejected.";
@@ -466,10 +466,10 @@ public function getOrderDetails(Request $request)
         $message = "Order not found";
         $code = 204;
         $accesToken = "aaaaa123456@#";
-        $orderDetail = null;
-        $storeAddres = null;
-        $customerAddres = null;
-        $itemDetail = null;
+        $orderDetail = [];
+        $storeAddres = [];
+        $customerAddres = [];
+        $itemDetail = [];
     }else {
         $orderDetail = $orderDetails;
         $storeAddres = $storeAddress;
