@@ -32,9 +32,8 @@ Route::post('/confirmOrder', 'Task\TaskController@confirmOrder');
 Route::post('/rejectOrder', 'Task\TaskController@rejectOrder');
 Route::post('/getOrderDetails', 'Task\TaskController@getOrderDetails');
 
-Route::post('/uploadImages', 'File\FileController@uploadImages');
-
-
+Route::post('/uploadBillImages', 'File\FileController@uploadBillImages');
+Route::post('/uploadOrderImages', 'File\FileController@uploadOrderImages');
 
 // Route::get('/getRoles', 
 // [

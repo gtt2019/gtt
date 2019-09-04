@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Form;
 use Illuminate\Support\Facades\DB;
 
-
 /**
  * Login Controller to verify login action and token
  */
@@ -41,7 +40,7 @@ class LoginController extends Controller
             ->first();    
             
         if (empty($results)) {            
-            $message = "Unauthorised access";
+            $message = "Unauthorised access, User not found";
             $code = 403;     
             $accesToken = "";
             $data = null;
@@ -51,7 +50,6 @@ class LoginController extends Controller
             $code = 200;     
             $accesToken = "aaaaa123456@#";
         }
-
         return response()->json([
             'message' => $message,
             'statusCode' => $code,
