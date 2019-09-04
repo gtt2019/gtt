@@ -30,12 +30,12 @@ class FileController extends Controller
     }
          
        if ($files = $request->file('images')) {           
-           $destinationPath = 'public/image/OrderImages'; // upload path
+           $destinationPath = 'public/image/OrderImages/'; // upload path
            $itemsImageName = date('YmdHis') . "." . $files->getClientOriginalName();                      
            $files->move($destinationPath, $itemsImageName);
            $insert['image'] = "$itemsImageName";
            $domainUrl = $request->root();
-           $imageUrlPath = $domainUrl . '/'. $destinationPath . "" .$itemsImageName;
+           $imageUrlPath = $domainUrl . '/'. $destinationPath . '' .$itemsImageName;
 
            $orderUpdate = DB::table('ORDERMASTER')
                                 ->where('orderid', $orderId)
@@ -81,7 +81,7 @@ class FileController extends Controller
     }
          
        if ($files = $request->file('images')) {           
-           $destinationPath = 'public/image/BillImages'; // upload path
+           $destinationPath = 'public/image/BillImages/'; // upload path
            $itemsImageName = date('YmdHis') . "." . $files->getClientOriginalName();                      
            $files->move($destinationPath, $itemsImageName);
            $insert['image'] = "$itemsImageName";
