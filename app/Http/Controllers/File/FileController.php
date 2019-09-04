@@ -17,8 +17,7 @@ class FileController extends Controller
     //     request()->validate([
     //         'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
     //    ]);
-
-
+    
     $v = Validator::make($request->all(), [
         'userId' => 'required|int',
         'token' => 'required',

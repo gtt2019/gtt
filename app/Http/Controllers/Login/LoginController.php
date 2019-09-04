@@ -20,7 +20,8 @@ class LoginController extends Controller
      */
     public function authUser(Request $request)
     {   
-        $id = $request->input('mobileNumber');                
+        $id = $request->input('mobileNumber'); 
+
         $v = Validator::make($request->all(), [
             'mobileNumber' => 'required|max:10|min:10']
             // ['mobileNumberid' => 'invalid id provided']
@@ -37,15 +38,15 @@ class LoginController extends Controller
          DB::table('USRUSER')
             ->select('firstName', 'lastName', 'usrid', 'mobile')
             ->where(['mobile'=> $id])
-            ->get();    
+            ->first();    
             
-        if (empty($results)) {
+        if (empty($results)) {            
             $message = "Unauthorised access";
             $code = 403;     
             $accesToken = "";
             $data = null;
-        }else {
-            $data = $results[0];
+        } else {
+            $data = $results;
             $message = "Login successfully";
             $code = 200;     
             $accesToken = "aaaaa123456@#";
