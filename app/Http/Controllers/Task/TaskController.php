@@ -13,6 +13,7 @@ class TaskController extends Controller
 {
     const STATUS_ID_IN_PROGRESS = 3;
     const ORDER_STATUS = [1, 3, 5, 7, 8];
+    const HAPPY_CODE = '12345';
 
     /**
      * API to get new status task for all delevery boy.
@@ -488,6 +489,52 @@ public function getOrderDetails(Request $request)
         'pickupAddress'=> $storeAddres,
         'deliveryAddress' => $customerAddres,
         'itemDetails' =>$itemDetail
+    ]) ;
+}
+
+public function verifyHappyCode(Request $request) 
+{
+    $v = Validator::make($request->all(), [
+        'userId' => 'required|int',
+        'token' => 'required',   
+        'orderId' => 'required|int',
+        'happyCode' => 'required'
+        ]);
+
+    if ($v->fails())
+    {            
+        $err = $v->errors();       
+        $message = $err->all();
+        return json_encode(['error' => $message] );
+    }
+    $token = $request->input('token');
+    $tokenService = new TokenService();
+    $tokenStatus = $tokenService->validateAccessToken($token);    
+    $userId = $request->input('userId');     
+    $orderId = $request->input('orderId');     
+    $happyCode = $request->input('happyCode');    
+
+    // $orderData = DB::table('ORDERMASTER')                                    
+    // ->select(
+    //     'happyCode', 'orderId'
+    // )
+    // ->where('orderid', $orderId)
+    // ->get();   
+    
+    if ($happyCode === TaskController::HAPPY_CODE ) {
+        $message = "Happy code does not match.";
+        $code = 204;
+        $accesToken = "aaaaa123456@#";        
+    }else {        
+        $message = "Happy code match, order delivered";
+        $code = 200;     
+        $accesToken = "aaaaa123456@#";
+    }
+              
+    return response()->json([
+        'message' => $message,
+        'statusCode' => $code,
+        'accessToken' => $accesToken
     ]) ;
 }
 
