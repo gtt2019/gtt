@@ -565,18 +565,14 @@ public function submitFeedBackForOrder(Request $request)
     $selctText = $request->input('slectedText');    
 
     
-    if ($happyCode === TaskController::HAPPY_CODE ) {
+    
         $message = "Feedback saved";
         $code = 200;        
-    }else {        
-        $message = "";
-        $code = 204;             
-    }
+       
               
     return response()->json([
         'message' => $message,
-        'statusCode' => $code,
-        'accessToken' => $accesToken
+        'statusCode' => $code        
     ]) ;
 }
 

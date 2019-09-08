@@ -10,6 +10,7 @@ use App\Http\Service\TokenService;
 class ThirdPartyApiController extends Controller
 {
     const DEMO_OTP = '123456';
+
     public function sendOtpToUSer(Request $request)
     {
         $v = Validator::make($request->all(), [
@@ -62,12 +63,12 @@ class ThirdPartyApiController extends Controller
             $message = "OTP verified successfully";
             $code = 200;     
         } else {            
-            $message = "Login successfully";
+            $message = "Wrong OTP entered";
             $code = 403;                 
         }
 
         return response()->json([            
-            'statusCode' => 200,          
+            'statusCode' => $code,          
             'status' => $message
         ]) ;
     }
