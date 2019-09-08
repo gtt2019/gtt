@@ -50,6 +50,7 @@ class LoginController extends Controller
             $code = 200;     
             $accesToken = "aaaaa123456@#";
         }
+        
         return response()->json([
             'message' => $message,
             'statusCode' => $code,

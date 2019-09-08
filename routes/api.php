@@ -32,11 +32,15 @@ Route::post('/confirmOrder', 'Task\TaskController@confirmOrder');
 Route::post('/rejectOrder', 'Task\TaskController@rejectOrder');
 Route::post('/getOrderDetails', 'Task\TaskController@getOrderDetails');
 Route::post('/verifyHappyCode', 'Task\TaskController@verifyHappyCode');
+Route::post('/saveFeedback', 'Task\TaskController@submitFeedBackForOrder');
 
 Route::post('/uploadBillImages', 'File\FileController@uploadBillImages');
 Route::post('/uploadOrderImages', 'File\FileController@uploadOrderImages');
 
 Route::post('/updateUserLocation', 'User\UserController@updateUserLocation');
+
+Route::post('/sendOtpToUSer', 'ThirdPartyService\ThirdPartyApiController@sendOtpToUSer');
+Route::post('/verifyOtp', 'ThirdPartyService\ThirdPartyApiController@verifyOtp');
 
 // Route::get('/getRoles', 
 // [

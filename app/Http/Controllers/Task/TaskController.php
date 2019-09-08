@@ -442,10 +442,12 @@ public function getOrderDetails(Request $request)
     // $dateTime = new DateTime();
     $orderDetails = DB::table('ORDERMASTER')                                    
     ->select('ORDERMASTER.orderid', 'orderno', 'statusid','ORDERMASTER.storeid','ordersdate','expecteddelivery',
-     'CUSTMASTER.customerid', 'orderarea', 'orderdesc', 
+    'ORDERMASTER.orderimagename', 'ORDERMASTER.orderimageurl', 'ORDERMASTER.billimageurl','ORDERMASTER.billimagename',
+    'CUSTMASTER.customerid', 'orderarea', 'orderdesc', 
     'totalamtwithtax', 'CUSTMASTER.firstName', 
     'STRSTORE.name as storeName', 'STRSTORE.owner as ownerName',
-    'detailid', 'qty', 'unitprice', 'longitude', 'latitude' )
+    'detailid', 'qty', 'unitprice', 'longitude', 'latitude'
+     )
     ->join('CUSTMASTER', 'ORDERMASTER.customerid', '=', 'CUSTMASTER.customerid' )
     ->join('STRSTORE', 'ORDERMASTER.storeid', '=', 'STRSTORE.storeid')                
     ->join('ORDERDETAIL', 'ORDERMASTER.orderid', '=', 'ORDERDETAIL.orderid')
@@ -529,6 +531,46 @@ public function verifyHappyCode(Request $request)
         $message = "Happy code match, order delivered";
         $code = 200;     
         $accesToken = "aaaaa123456@#";
+    }
+              
+    return response()->json([
+        'message' => $message,
+        'statusCode' => $code,
+        'accessToken' => $accesToken
+    ]) ;
+}
+
+public function submitFeedBackForOrder(Request $request) 
+{
+    $v = Validator::make($request->all(), [
+        'userId' => 'required|int',
+        'token' => 'required',   
+        'orderId' => 'required|int',        
+        'ratings' => 'required',
+        'slectedText' => 'required'
+        ]);
+
+    if ($v->fails())
+    {            
+        $err = $v->errors();       
+        $message = $err->all();
+        return json_encode(['error' => $message] );
+    }
+    $token = $request->input('token');
+    $tokenService = new TokenService();
+    $tokenStatus = $tokenService->validateAccessToken($token);    
+    $userId = $request->input('userId');     
+    $orderId = $request->input('orderId');     
+    $ratings = $request->input('ratings');
+    $selctText = $request->input('slectedText');    
+
+    
+    if ($happyCode === TaskController::HAPPY_CODE ) {
+        $message = "Feedback saved";
+        $code = 200;        
+    }else {        
+        $message = "";
+        $code = 204;             
     }
               
     return response()->json([
