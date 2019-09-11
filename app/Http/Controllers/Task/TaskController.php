@@ -12,12 +12,16 @@ use Illuminate\Support\Facades\DB;
 class TaskController extends Controller
 {
     const STATUS_ID_IN_PROGRESS = 3;
-    const ORDER_STATUS = [1, 3, 5, 7, 8];
+    const ORDER_STATUS_ONGOING = [10,3,5,7,8];
+    const ORDER_STATUS = [1];
     const HAPPY_CODE = '12345';
 
     /**
      * API to get new status task for all delevery boy.
+     * 
      */
+
+
     public function getAllNewTask(Request $request) 
     {
         $token = $request->input('token');
@@ -35,14 +39,13 @@ class TaskController extends Controller
         {            
             $err = $v->errors();       
             $message = $err->all();
-            return json_encode(['error' => $message] );
+            return json_encode(['error' => $message]);
         }
 
         $tokenService = new TokenService();
         $tokenStatus = $tokenService->validateAccessToken($token);
 
         if ($tokenStatus['status'] !== true) {
-
             return response()->json([
                 'message' => $tokenStatus['messsage'],
                 'statusCode' => 400,
@@ -54,15 +57,16 @@ class TaskController extends Controller
         $tasks = DB::table('ORDERMASTER')                                    
             ->select('orderid', 'orderno', 'statusid','ORDERMASTER.storeid',
              'CUSTMASTER.customerid', 'orderarea', 'orderdesc', 
-            'totalamtwithtax', 'totaldiscount', 'CUSTMASTER.firstName',
+            'totalamtwithtax', 'totaldiscount', 'CUSTMASTER.firstName','CUSTMASTER.lastName',
             'STRSTORE.name as storeName', 'STRSTORE.owner as ownerName',            
             'STRSTORE.latitude', 'STRSTORE.longitude'
             )
             ->join('CUSTMASTER', 'ORDERMASTER.customerid', '=', 'CUSTMASTER.customerid' )
             ->join('STRSTORE', 'ORDERMASTER.storeid', '=', 'STRSTORE.storeid')            
-            ->whereIn('statusid', self::ORDER_STATUS)            
+            ->whereIn('ORDERMASTER.statusid', self::ORDER_STATUS)            
             ->where('assignedto', $userId)
             ->get();
+            
             
             $data = [];
             foreach ($tasks as $key => $task) {                
@@ -94,8 +98,83 @@ class TaskController extends Controller
                 'data' => $data
             ]);            
     }   
+  
+    public function getPendingTask(Request $request){
+        $token = $request->input('token');
+        $userId = $request->input('userId');     
+        $accesToken = "aaaaa123456@#";
+        $statusId = 1;
+        $addressType = ['Store', 'User'];
 
+        $v = Validator::make($request->all(), [
+            'userId' => 'required|int',
+            'token' => 'required'
+            ]);
+    
+        if ($v->fails())
+        {            
+            $err = $v->errors();       
+            $message = $err->all();
+            return json_encode(['error' => $message]);
+        }
 
+        $tokenService = new TokenService();
+        $tokenStatus = $tokenService->validateAccessToken($token);
+
+        if ($tokenStatus['status'] !== true) {
+            return response()->json([
+                'message' => $tokenStatus['messsage'],
+                'statusCode' => 400,
+                'accessToken' => $accesToken,
+                'data' => $data
+            ]);                
+        }
+
+        $tasks = DB::table('ORDERMASTER')                                    
+            ->select('orderid', 'orderno', 'statusid','ORDERMASTER.storeid',
+             'CUSTMASTER.customerid', 'orderarea', 'orderdesc', 
+            'totalamtwithtax', 'totaldiscount', 'CUSTMASTER.firstName','CUSTMASTER.lastName',
+            'STRSTORE.name as storeName', 'STRSTORE.owner as ownerName',            
+            'STRSTORE.latitude', 'STRSTORE.longitude'
+            )
+            ->join('CUSTMASTER', 'ORDERMASTER.customerid', '=', 'CUSTMASTER.customerid' )
+            ->join('STRSTORE', 'ORDERMASTER.storeid', '=', 'STRSTORE.storeid')            
+            ->whereIn('ORDERMASTER.statusid', self::ORDER_STATUS_ONGOING)            
+            ->where('assignedto', $userId)
+            ->get();
+            
+            
+            $data = [];
+            foreach ($tasks as $key => $task) {                
+                $storeAddress = $this->getAddress('Store', $task->storeid);
+                $customerAddress = $this->getAddress('User', $task->customerid);
+
+                $data[$key] = [
+                    'orderDetails' => $task,
+                    'storeAddress' => $storeAddress,
+                    'customerAddress' => $customerAddress
+                ];
+            }
+            if (empty($data)) {
+                $message = "No Pending Task";
+                $code = 204;     
+                $accesToken = "aaaaa123456@#";
+                $data = [];
+            }else {
+                $data = $data;
+                $message = "";
+                $code = 200;     
+                $accesToken = "aaaaa123456@#";
+            }
+    
+            return response()->json([
+                'message' => $message,
+                'statusCode' => $code,
+                'accessToken' => $accesToken,
+                'data' => $data
+            ]);       
+
+    }
     public function getAddress($addressType, $addressTypeId) 
     {        
         $tasks = DB::table('CMNADDRESS')                                    
@@ -575,7 +654,6 @@ public function submitFeedBackForOrder(Request $request)
         'statusCode' => $code        
     ]) ;
 }
-
 }
 
 

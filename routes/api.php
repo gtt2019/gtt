@@ -22,6 +22,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/authUser', 'Login\LoginController@authUser');
 
 Route::post('/getAllNewTask', 'Task\TaskController@getAllNewTask');
+Route::post('/getPendingTask', 'Task\TaskController@getPendingTask');
 Route::post('/updateOrderStatus', 'Task\TaskController@updateOrderStatus');
 
 //DAshborad API
