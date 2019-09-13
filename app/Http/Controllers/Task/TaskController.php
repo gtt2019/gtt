@@ -20,8 +20,6 @@ class TaskController extends Controller
      * API to get new status task for all delevery boy.
      * 
      */
-
-
     public function getAllNewTask(Request $request) 
     {
         $token = $request->input('token');
@@ -65,8 +63,7 @@ class TaskController extends Controller
             ->join('STRSTORE', 'ORDERMASTER.storeid', '=', 'STRSTORE.storeid')            
             ->whereIn('ORDERMASTER.statusid', self::ORDER_STATUS)            
             ->where('assignedto', $userId)
-            ->get();
-            
+            ->get();          
             
             $data = [];
             foreach ($tasks as $key => $task) {                
@@ -534,9 +531,9 @@ public function getOrderDetails(Request $request)
     ->get(); 
    
     $itemDetails = DB::table('ORDERDETAIL')->select(
-        'Prdmaster.prddesc', 'qty', 'unitprice', 'netamount'
+        'PRDMASTER.prddesc', 'qty', 'unitprice', 'netamount'
         )  
-    ->join('Prdmaster', 'Prdmaster.prdid', '=', 'ORDERDETAIL.ordlineno' )
+    ->join('PRDMASTER', 'PRDMASTER.prdid', '=', 'ORDERDETAIL.ordlineno' )
     ->where(['ORDERDETAIL.orderid' => $orderId])->get();
 
     $storeAddress = $this->getAddress('Store', $orderDetails[0]->storeid);
