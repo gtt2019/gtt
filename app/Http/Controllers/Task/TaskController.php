@@ -174,7 +174,7 @@ class TaskController extends Controller
     }
     public function getAddress($addressType, $addressTypeId) 
     {        
-        $tasks = DB::table('CMNADDRESS')                                    
+        $address = DB::table('CMNADDRESS')                                    
             ->select(
                 'address1', 'address2', 'locality','landmark','cityname', 'statename',
                 'countryname', 'CMNZIPCODE.zipcode', 'zipcodearea', 'mobile'
@@ -182,13 +182,13 @@ class TaskController extends Controller
             ->join('CMNCITY', 'CMNCITY.cityid', '=', 'CMNADDRESS.city')
             ->join('CMNSTATE', 'CMNCITY.stateid', '=', 'CMNADDRESS.state')
             ->join('CMNCOUNTRY', 'CMNCOUNTRY.countryid', '=', 'CMNADDRESS.country')
-            ->join('CMNZIPCODE', 'CMNZIPCODE.zipcodeid', '=', 'CMNADDRESS.postalcode')
+            ->leftJoin('CMNZIPCODE', 'CMNZIPCODE.zipcodeid', '=', 'CMNADDRESS.postalcode')
             ->where('addresstype', $addressType)            
             ->where('addresstypeid', $addressTypeId)
             ->where('primaryaddress', 1)
             ->first();
 
-            return $tasks;
+            return $address;
     }
     
     public function updateOrderStatus(Request $request)
@@ -518,7 +518,7 @@ public function getOrderDetails(Request $request)
     // $dateTime = new DateTime();
     $orderDetails = DB::table('ORDERMASTER')                                    
     ->select('ORDERMASTER.orderid', 'orderno', 'statusid','ORDERMASTER.storeid','ordersdate','expecteddelivery',
-    'ORDERMASTER.orderimagename', 'ORDERMASTER.orderimageurl', 'ORDERMASTER.billimageurl','ORDERMASTER.billimagename',
+    'ORDERMASTER.orderimagename', 'ORDERMASTER.orderimageurl', 'ORDERMASTER.billimageurl','ORDERMASTER.billimagename', 'ORDERMASTER.happycode',
     'CUSTMASTER.customerid', 'orderarea', 'orderdesc', 
     'totalamtwithtax', 'CUSTMASTER.firstName', 
     'STRSTORE.name as storeName', 'STRSTORE.owner as ownerName',
@@ -527,8 +527,9 @@ public function getOrderDetails(Request $request)
     ->join('CUSTMASTER', 'ORDERMASTER.customerid', '=', 'CUSTMASTER.customerid' )
     ->join('STRSTORE', 'ORDERMASTER.storeid', '=', 'STRSTORE.storeid')                
     ->join('ORDERDETAIL', 'ORDERMASTER.orderid', '=', 'ORDERDETAIL.orderid')
-    ->where(['assignedto' => $userId, 'ORDERMASTER.orderid' => $orderId])
-    ->get(); 
+    ->where('assignedto', $userId)
+    ->where('ORDERMASTER.orderid', $orderId)
+    ->first();     
    
     $itemDetails = DB::table('ORDERDETAIL')->select(
         'PRDMASTER.prddesc', 'qty', 'unitprice', 'netamount'
@@ -536,11 +537,9 @@ public function getOrderDetails(Request $request)
     ->join('PRDMASTER', 'PRDMASTER.prdid', '=', 'ORDERDETAIL.ordlineno' )
     ->where(['ORDERDETAIL.orderid' => $orderId])->get();
 
-    $storeAddress = $this->getAddress('Store', $orderDetails[0]->storeid);
-    $customerAddress = $this->getAddress('Customer', $orderDetails[0]->customerid);
+    $storeAddress = $this->getAddress('Store', $orderDetails->storeid);
+    $customerAddress = $this->getAddress('Customer', $orderDetails->customerid);
    
-    //dd($res);
-    
     if (!$orderDetails) {
         $message = "Order not found";
         $code = 204;
@@ -571,7 +570,7 @@ public function getOrderDetails(Request $request)
 }
 
 public function verifyHappyCode(Request $request) 
-{
+{    
     $v = Validator::make($request->all(), [
         'userId' => 'required|int',
         'token' => 'required',   
@@ -591,22 +590,20 @@ public function verifyHappyCode(Request $request)
     $userId = $request->input('userId');     
     $orderId = $request->input('orderId');     
     $happyCode = $request->input('happyCode');    
-
-    // $orderData = DB::table('ORDERMASTER')                                    
-    // ->select(
-    //     'happyCode', 'orderId'
-    // )
-    // ->where('orderid', $orderId)
-    // ->get();   
+ 
+    $orderData = DB::table('ORDERMASTER')->select('happyCode')
+                ->where('orderid', $orderId)
+                ->first();       
+    $orderHappyCode = $orderData->happyCode;
     
-    if ($happyCode === TaskController::HAPPY_CODE ) {
+    if ($happyCode === $orderHappyCode ) {
+        $message = "Happy code match, order delivered";
+        $code = 200;     
+        $accesToken = "aaaaa123456@#";        
+    }else {                
         $message = "Happy code does not match.";
         $code = 204;
         $accesToken = "aaaaa123456@#";        
-    }else {        
-        $message = "Happy code match, order delivered";
-        $code = 200;     
-        $accesToken = "aaaaa123456@#";
     }
               
     return response()->json([
@@ -622,8 +619,8 @@ public function submitFeedBackForOrder(Request $request)
         'userId' => 'required|int',
         'token' => 'required',   
         'orderId' => 'required|int',        
-        'ratings' => 'required',
-        'slectedText' => 'required'
+        'fbRank' => 'required',
+        'fbkDesc' => 'required'
         ]);
 
     if ($v->fails())
@@ -637,15 +634,36 @@ public function submitFeedBackForOrder(Request $request)
     $tokenStatus = $tokenService->validateAccessToken($token);    
     $userId = $request->input('userId');     
     $orderId = $request->input('orderId');     
-    $ratings = $request->input('ratings');
-    $selctText = $request->input('slectedText');    
+    $fbRank = $request->input('fbRank');
+    $fbkDesc = $request->input('fbkDesc');    
 
-    
+    // DB::table('FBKDETAIL')->increment('detailid');
+
+    // DB::table('FBKMASTER')->insert([
+    //     'companyid' => '1',        
+    //     'active' => 'Y',
+    //     'typeid' => 1,
+    //     'fbkdesc'=> 
+    // ]);
+
+    $feedback = DB::table('FBKDETAIL')->select('detailid')->orderBy('lastupdated', 'DESC')->first();
+    $id = $feedback->detailid;        
+    ++$id;
+    $dateTime = date("Y-m-d h:i:s");   
+    DB::table('FBKDETAIL')->insert([
+        'companyid' => '1',  
+        'detailid' => $id,        
+        'rankid' => $fbRank,
+        'fbkdesc' => $fbkDesc,
+        'fbkdate' => $dateTime,
+        'lastupdated' => $dateTime,
+        'fbkbyuser' => '10',
+        'startrating' => '2'
+    ]);    
     
         $message = "Feedback saved";
         $code = 200;        
-       
-              
+                  
     return response()->json([
         'message' => $message,
         'statusCode' => $code        

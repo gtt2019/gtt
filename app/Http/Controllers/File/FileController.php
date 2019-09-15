@@ -65,12 +65,14 @@ class FileController extends Controller
         $token = $request->input('token');
         $userId = $request->input('userId');     
         $orderId = $request->input('orderId');     
-        
+        $billAmount = $request->input('billAmount');             
+
         $v = Validator::make($request->all(), [
                 'userId' => 'required|int',
                 'token' => 'required',
-                'orderId' => 'required',
-                'images' => 'required|image|mimes:jpeg,png,jpg,svg|max:10000'
+                'orderId' => 'required',                
+                'images' => 'required|image|mimes:jpeg,png,jpg,svg|max:10000',
+                'billAmount' => 'int'
             ]);
 
     if ($v->fails())
@@ -80,33 +82,38 @@ class FileController extends Controller
         return json_encode(['error' => $message] );
     }
          
-       if ($files = $request->file('images')) {           
+          $files = $request->file('images');
            $destinationPath = 'public/image/BillImages/'; // upload path
            $itemsImageName = date('YmdHis') . "." . $files->getClientOriginalName();                      
            $files->move($destinationPath, $itemsImageName);
            $insert['image'] = "$itemsImageName";
            $domainUrl = $request->root();
            $imageUrlPath = $domainUrl . '/'. $destinationPath . "" .$itemsImageName;
+
            $orderUpdate = DB::table('ORDERMASTER')
                                 ->where('orderid', $orderId)
+                                ->where('assignedto', $userId)
                                 ->update(['billimagename' => $itemsImageName, 
-                                          'billimageurl' => $imageUrlPath ]);
+                                          'billimageurl' => $imageUrlPath,
+                                          'totalamtwithtax' => $billAmount ]);
         
+        // dd($orderUpdate);
+
+      if ($orderUpdate){ 
            $message = "Images uploaded successfully";
            $code = 200;     
            $accesToken = "aaaaa123456@#";
-           $data = [];
+           
        }else {           
-           $message = "Nothing to upload";
-           $code = 200;     
+           $message = "please check order details or order not belongs to you";
+           $code = 204;     
            $accesToken = "aaaaa123456@#";
        }                    
 
        return response()->json([
                 'message' => $message,
                 'statusCode' => $code,
-                'accessToken' => $accesToken,
-                'data' => $data
+                'accessToken' => $accesToken                
             ]);                 
     }
 }
