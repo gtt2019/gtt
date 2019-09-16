@@ -600,16 +600,19 @@ public function verifyHappyCode(Request $request)
     if ($happyCode === $orderHappyCode ) {
         $message = "Happy code match, order delivered";
         $code = 200;     
+        $status = true;
         $accesToken = "aaaaa123456@#";        
     }else {                
         $message = "Happy code does not match.";
         $code = 204;
+        $status = false;
         $accesToken = "aaaaa123456@#";        
     }
               
     return response()->json([
         'message' => $message,
         'statusCode' => $code,
+        'status' => $status,
         'accessToken' => $accesToken
     ]) ;
 }
