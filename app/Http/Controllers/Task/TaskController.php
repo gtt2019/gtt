@@ -203,7 +203,8 @@ class TaskController extends Controller
         $v = Validator::make($request->all(), [
             'userId' => 'required|int',
             'token' => 'required',
-            'orderId' => 'required'
+            'orderId' => 'required',
+            'statusId' => 'required'
             ]);
     
         if ($v->fails())
@@ -629,6 +630,7 @@ public function submitFeedBackForOrder(Request $request)
         $message = $err->all();
         return json_encode(['error' => $message] );
     }
+
     $token = $request->input('token');
     $tokenService = new TokenService();
     $tokenStatus = $tokenService->validateAccessToken($token);    
@@ -637,19 +639,23 @@ public function submitFeedBackForOrder(Request $request)
     $fbRank = $request->input('fbRank');
     $fbkDesc = $request->input('fbkDesc');    
 
-    // DB::table('FBKDETAIL')->increment('detailid');
+    $orderDetails = DB::table('ORDERMASTER')                                    
+    ->select('ORDERMASTER.orderid'
+     )
+    ->where('assignedto', $userId)
+    ->where('ORDERMASTER.orderid', $orderId)
+    ->first();   
 
-    // DB::table('FBKMASTER')->insert([
-    //     'companyid' => '1',        
-    //     'active' => 'Y',
-    //     'typeid' => 1,
-    //     'fbkdesc'=> 
-    // ]);
-
-    $feedback = DB::table('FBKDETAIL')->select('detailid')->orderBy('lastupdated', 'DESC')->first();
-    $id = $feedback->detailid;        
-    ++$id;
-    $dateTime = date("Y-m-d h:i:s");   
+    // $id = $orderDetails->orderid;
+    if (empty($orderDetails))
+    { 
+        $message = "Access denied, Order not belongs to you.";
+        $code = 502 ;        
+    } else {    
+     $data = DB::select("call usp_seqNumber('CMNADDRESS', @seqNumber)");   
+     $data1 = DB::select("SELECT @seqNumber as seqNumber" );
+     $id = $data1[0]->seqNumber;
+     $dateTime = date("Y-m-d h:i:s");   
     DB::table('FBKDETAIL')->insert([
         'companyid' => '1',  
         'detailid' => $id,        
@@ -657,13 +663,14 @@ public function submitFeedBackForOrder(Request $request)
         'fbkdesc' => $fbkDesc,
         'fbkdate' => $dateTime,
         'lastupdated' => $dateTime,
-        'fbkbyuser' => '10',
-        'startrating' => '2'
-    ]);    
-    
-        $message = "Feedback saved";
-        $code = 200;        
-                  
+        'fbkbyuser' => $userId,
+        'startrating' => $fbRank,
+        'orderId' => $orderId
+    ]);
+
+    $message = "Feedback saved";
+    $code = 200;         
+    }            
     return response()->json([
         'message' => $message,
         'statusCode' => $code        
