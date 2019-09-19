@@ -6,11 +6,21 @@ class TokenService
 { 
     public function validateAccessToken(string $token) 
     {
+        $accesToken = "aaaaa123456@#";
 
-        $payload = [
-            'message ' => 'Token is Ok',
-            'status' => true
-        ];
+        if ($accesToken === $token)
+        {
+            $payload = [
+                'message' => 'Token is Ok.',
+                'status' => true
+            ];  
+        } else {
+            $payload = [
+                'message' => 'Wrong Token.',
+                'status' => false
+            ];
+        }
+
         return $payload;
     }
 }

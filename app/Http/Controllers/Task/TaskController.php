@@ -23,9 +23,7 @@ class TaskController extends Controller
     public function getAllNewTask(Request $request) 
     {
         $token = $request->input('token');
-        $userId = $request->input('userId');     
-        $accesToken = "aaaaa123456@#";
-        $statusId = 1;
+        $userId = $request->input('userId');             
         $addressType = ['Store', 'User'];
 
         $v = Validator::make($request->all(), [
@@ -45,7 +43,7 @@ class TaskController extends Controller
 
         if ($tokenStatus['status'] !== true) {
             return response()->json([
-                'message' => $tokenStatus['messsage'],
+                'message' => $tokenStatus['message'],
                 'statusCode' => 400,
                 'accessToken' => $accesToken,
                 'data' => $data
@@ -98,9 +96,7 @@ class TaskController extends Controller
   
     public function getPendingTask(Request $request){
         $token = $request->input('token');
-        $userId = $request->input('userId');     
-        $accesToken = "aaaaa123456@#";
-        $statusId = 1;
+        $userId = $request->input('userId');                     
         $addressType = ['Store', 'User'];
 
         $v = Validator::make($request->all(), [
@@ -120,9 +116,8 @@ class TaskController extends Controller
 
         if ($tokenStatus['status'] !== true) {
             return response()->json([
-                'message' => $tokenStatus['messsage'],
-                'statusCode' => 400,
-                'accessToken' => $accesToken,
+                'message' => $tokenStatus['message'],
+                'statusCode' => 400,                
                 'data' => $data
             ]);                
         }
@@ -154,14 +149,12 @@ class TaskController extends Controller
             }
             if (empty($data)) {
                 $message = "No Pending Task";
-                $code = 204;     
-                $accesToken = "aaaaa123456@#";
+                $code = 204;                     
                 $data = [];
             }else {
                 $data = $data;
                 $message = "";
-                $code = 200;     
-                $accesToken = "aaaaa123456@#";
+                $code = 200;                     
             }
     
             return response()->json([
@@ -172,12 +165,13 @@ class TaskController extends Controller
             ]);       
 
     }
+
     public function getAddress($addressType, $addressTypeId) 
     {        
         $address = DB::table('CMNADDRESS')                                    
             ->select(
                 'address1', 'address2', 'locality','landmark','cityname', 'statename',
-                'countryname', 'CMNZIPCODE.zipcode', 'zipcodearea', 'mobile'
+                'countryname', 'CMNZIPCODE.zipcode', 'zipcodearea', 'mobile','longitude', 'latitude'
             )
             ->join('CMNCITY', 'CMNCITY.cityid', '=', 'CMNADDRESS.city')
             ->join('CMNSTATE', 'CMNCITY.stateid', '=', 'CMNADDRESS.state')
@@ -197,8 +191,7 @@ class TaskController extends Controller
         $userId = $request->input('userId');     
         $orderId = $request->input('orderId');
         $orderStatusId = $request->input('statusId');
-        $accesToken = "aaaaa123456@#";
-        $statusId = 1;
+        $accesToken = "aaaaa123456@#";        
         
         $v = Validator::make($request->all(), [
             'userId' => 'required|int',
@@ -220,7 +213,7 @@ class TaskController extends Controller
         if ($tokenStatus['status'] !== true) {
 
             return response()->json([
-                'message' => $tokenStatus['messsage'],
+                'message' => $tokenStatus['message'],
                 'statusCode' => 400,
                 'accessToken' => $accesToken,
                 'data' => $data
@@ -241,7 +234,7 @@ class TaskController extends Controller
                         $message = "Order status updated successfully";
                         $code = 200;     
                         $accesToken = "aaaaa123456@#";
-                    }
+            }
             
                     return response()->json([
                         'message' => $message,
@@ -275,7 +268,7 @@ class TaskController extends Controller
 
         if ($tokenStatus['status'] !== true) {
             return response()->json([
-                'message' => $tokenStatus['messsage'],
+                'message' => $tokenStatus['message'],
                 'statusCode' => 400,
                 'accessToken' => $accesToken,
                 'data' => $data
@@ -333,7 +326,7 @@ class TaskController extends Controller
 
         if ($tokenStatus['status'] !== true) {
             return response()->json([
-                'message' => $tokenStatus['messsage'],
+                'message' => $tokenStatus['message'],
                 'statusCode' => 400,
                 'accessToken' => $accesToken,
                 'data' => $data
@@ -389,7 +382,7 @@ class TaskController extends Controller
 
         if ($tokenStatus['status'] !== true) {
             return response()->json([
-                'message' => $tokenStatus['messsage'],
+                'message' => $tokenStatus['message'],
                 'statusCode' => 400,
                 'accessToken' => $accesToken,
                 'data' => $data
@@ -448,7 +441,7 @@ class TaskController extends Controller
 
         if ($tokenStatus['status'] !== true) {
             return response()->json([
-                'message' => $tokenStatus['messsage'],
+                'message' => $tokenStatus['message'],
                 'statusCode' => 400,
                 'accessToken' => $accesToken,
                 'data' => $data
@@ -466,14 +459,12 @@ class TaskController extends Controller
                     
         if (!$orderStatus) {
             $message = "";
-            $code = 204;
-            $accesToken = "aaaaa123456@#";
+            $code = 204;            
             $data = [];
         }else {
             $data = "";
             $message = "Order rejected.";
-            $code = 200;     
-            $accesToken = "aaaaa123456@#";
+            $code = 200;                 
         }
                   
         return response()->json([
@@ -509,7 +500,7 @@ public function getOrderDetails(Request $request)
 
     if ($tokenStatus['status'] !== true) {
         return response()->json([
-            'message' => $tokenStatus['messsage'],
+            'message' => $tokenStatus['message'],
             'statusCode' => 400,
             'accessToken' => $accesToken,
             'data' => $data
@@ -555,8 +546,7 @@ public function getOrderDetails(Request $request)
         $customerAddres = $customerAddress;
         $itemDetail = $itemDetails;
         $message = "";
-        $code = 200;     
-        $accesToken = "aaaaa123456@#";
+        $code = 200;             
     }
               
     return response()->json([
@@ -678,6 +668,78 @@ public function submitFeedBackForOrder(Request $request)
         'message' => $message,
         'statusCode' => $code        
     ]) ;
+}
+
+public function getCompletedOrderHistory(Request $request)
+{
+    $token = $request->input('token');
+    $userId = $request->input('userId');         
+    $addressType = ['Store', 'User'];
+
+    $v = Validator::make($request->all(), [
+        'userId' => 'required|int',
+        'token' => 'required'
+        ]);
+
+    if ($v->fails())
+    {            
+        $err = $v->errors();       
+        $message = $err->all();
+        return json_encode(['error' => $message]);
+    }
+
+    $tokenService = new TokenService();
+    $tokenStatus = $tokenService->validateAccessToken($token);
+    
+    if ($tokenStatus['status'] !== true) {
+        return response()->json([
+            'message' => $tokenStatus['message'],
+            'statusCode' => 400,
+            'accessToken' => $accesToken,
+            'data' => $data
+        ]);                
+    }
+
+    $tasks = DB::table('ORDERMASTER')                                    
+        ->select('orderid', 'orderno', 'statusid','ORDERMASTER.storeid',
+         'CUSTMASTER.customerid', 'orderarea', 'orderdesc', 
+        'totalamtwithtax', 'totaldiscount', 'CUSTMASTER.firstName','CUSTMASTER.lastName',
+        'STRSTORE.name as storeName', 'STRSTORE.owner as ownerName',            
+        'STRSTORE.latitude', 'STRSTORE.longitude'
+        )
+        ->join('CUSTMASTER', 'ORDERMASTER.customerid', '=', 'CUSTMASTER.customerid' )
+        ->join('STRSTORE', 'ORDERMASTER.storeid', '=', 'STRSTORE.storeid')            
+        ->where('ORDERMASTER.statusid', '=', 4)            
+        ->where('assignedto', $userId)
+        ->get();          
+        
+        $data = [];
+        foreach ($tasks as $key => $task) {                
+            $storeAddress = $this->getAddress('Store', $task->storeid);
+            $customerAddress = $this->getAddress('User', $task->customerid);
+
+            $data[$key] = [
+                'orderDetails' => $task,
+                'storeAddress' => $storeAddress,
+                'customerAddress' => $customerAddress
+            ];
+        }
+        if (empty($data)) {
+            $message = "No completed tasks";
+            $code = 204;                 
+            $data = [];
+        }else {
+            $message = "";
+            $data = $data;
+            $message = "";
+            $code = 200;                 
+        }
+
+        return response()->json([
+            'message' => $message,
+            'statusCode' => $code,            
+            'data' => $data
+        ]);      
 }
 }
 
